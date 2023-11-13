@@ -12,7 +12,6 @@ U ovom dokumentu opisati će se neke smjernice toga kako testirati aplikaciju na
 - [E2E i component testiranje](#e2e-i-component-testiranje)
   - [Struktura direktorija](#struktura-direktorija)
   * [E2E](#e2e)
-    - [Uvod](#uvod)
     - [Autentifikacija](#autentifikacija)
     - [Smjernice](#smjernice)
     - [Environment](#environment)
@@ -71,8 +70,6 @@ Van ovog direktorija se također nalaze konfiguracijske i deklaracijske datoteke
 Unutar konfiguracijske datoteke `cypress.config.ts` definirane su top level postavke za e2e i component testiranje, dok se unutar deklaracijske datoteke `cypress.d.ts` tipiziraju naredbe koje se koriste prilikom testiranja.
 
 ### E2E
-
-#### Uvod
 
 Kod end to end testiranja nastoji se simulirati točni slijed operacija kojime bi korisnik obavio nešto na aplikaciji poput autentificiranja, upisivanja teksta u polja za unos pa zatim odlazak na neki drugi dio aplikacije gdje još dodatno radi neke stvari koje se mogu testirati npr. uređivanje profila.
 
@@ -173,6 +170,8 @@ cy.get("#prva-stavka").should("have.text", "Prva stavka");
 </tr>
 </table>
 
+Uz sve navedeno opisi testova bi trebali glasiti nalik na: `should do thing` i varijacije te rečenice, ovisno o situaciji.
+
 #### Environment
 
 Ponekad je potrebno da se aplikacija testira unutar raznih okolina poput QA, u produkciji i slično pa kad se testovi pišu nebi trebali hardkodirati vrijednosti koje su specifične za tu okolinu poput informacija o korisniku preko kojeg se obavlja testiranje te aplikacije.
@@ -205,6 +204,113 @@ Testovi se pokreću preko Cypressovog sučelja, u tu svrhu napisano je par nared
 
 ### Component
 
-Testiranje komponenti je slično E2E testiranju u smislu da se isto koristi Cypress.
+Testiranje komponenti je slično E2E testiranju u smislu da se isto koristi Cypress i trebalo bi se usredotočiti na dvije ključne stavke:
 
-WIP
+- **Vizualna logika** - reagira li komponenta pravilno na promjene prenesenih podataka (propovi, slotovi)
+- **Logika ponašanja** - reagira li komponenta pravilno na korisnični podražaj
+
+Ni pod razno se nebi trebalo dirati interno stanje komponente ili njegove metode, ako je potrebno testirati baš specifičnu metodu vezanu uz komponentu to se radi preko unit testova izolirano.
+
+Svaki test bi se trebao pisati unutar direktorija gdje se nalazi sama komponenta, npr. ako postoji komponenta `slider.vue` trebala bi postojati i datoteka `slider.cy.ts` na istoj razini ili unutar posebnog foldera zvanog `tests`.
+
+#### Primjer
+
+```ts
+import { hexToRgb } from "@/shared/helpers/misc";
+import { capitalize } from "@/shared/helpers/string";
+import DatePicker from "../CustomDatePicker.vue";
+import { createNativeLocaleFormatter } from "../helpers";
+
+const currentDate = new Date();
+
+// 1
+const defaultProps = {
+  modelValue: currentDate.toISOString().substring(0, 10),
+  max: "2023-12-12",
+  min: "2020-01-24",
+  firstDayOfWeek: 1,
+  locale: "en-US"
+};
+
+// 2
+describe("DatePicker", () => {
+  // 3
+  it("should mount", () => {
+    cy.mount(DatePicker, {
+      props: defaultProps
+    });
+  });
+
+  // 4
+  it("should have the default appearance", () => {
+    const currentYear = currentDate.getFullYear().toString();
+    cy.mount(DatePicker, {
+      props: defaultProps
+    });
+    cy.get(".date-picker-title").should(
+      "have.css",
+      "background-color",
+      hexToRgb("2e79bd")
+    );
+    cy.get(".date-picker-title__year").should("have.text", currentYear);
+  });
+
+  // 5
+  it("should react to model value changes", () => {
+    cy.mount(DatePicker, {
+      props: defaultProps
+    });
+    const nextDay = new Date(currentDate.getTime() + 86400000)
+      .toISOString()
+      .substring(0, 10);
+    cy.vue().then((wrapper) => {
+      wrapper.setProps({
+        // Current date + 1 day
+        modelValue: nextDay
+      });
+    });
+  });
+
+  // 6
+  it("should react to locale value changes", () => {
+    const locale = "hr-HR";
+    cy.mount(DatePicker, {
+      props: defaultProps
+    });
+    cy.vue().then((wrapper) => {
+      wrapper.setProps({
+        locale
+      });
+      // Formatiranje - mjesec i godina
+      const formatter = createNativeLocaleFormatter(
+        locale,
+        { month: "long", year: "numeric", timeZone: "UTC" },
+        { length: 7 }
+      );
+      const expectedText = capitalize(
+        formatter!(currentDate.toISOString().substring(0, 10))
+      );
+      cy.get(".date-picker-header__value").should("have.text", expectedText);
+    });
+  });
+
+  // 7
+  it("should be able to scroll through months", () => {
+    cy.mount(DatePicker, {
+      props: defaultProps
+    });
+    cy.get("#prev-month").click();
+    cy.get("#next-month").click();
+  });
+});
+```
+
+Opisano po točkama:
+
+1. Prije samog testiranja ponekad je potrebno deklarirati neke statičke podatke koji će se naknadno koristiti, mogu se deklarirati i tokom pojedinačnih testova
+2. Svaki test kao i kod E2E treba opisati, generalno kod testiranja komponenti je to sami naziv komponente
+3. Inicijalni test koji bi trebalo provesti je: Hoće li se komponenta uopće renderati? Ovo radimo `mount` funkcijom pa zatim dodatno definiramo neke podatke koji su specifični toj komponenti
+4. Jedan od testova bi trebao sadržavati vizualni opis stanja komponente kad se rendera, generalno samo provjere usklađuje li se stil i izgled onome kako bi trebalo biti
+5. WIP
+6. WIP
+7. WIP
