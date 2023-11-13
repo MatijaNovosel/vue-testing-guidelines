@@ -4,17 +4,21 @@
 
 <h1 align=center>Vue testing guidelines</h1>
 
-U ovom dokumentu opisati će se neke smjernice toga kako testirati aplikaciju na e2e, unit i component način.
+U ovom dokumentu opisati će se neke smjernice toga kako testirati aplikaciju na e2e, unit i component način kao i tehnički dio načina testiranja.
 
 ## Sadržaj
 
 - [Uvod](#uvod)
 - [E2E i component testiranje](#e2e-i-component-testiranje)
   - [Struktura direktorija](#struktura-direktorija)
-  - [E2E](#e2e)
-  * [Tipiziranje](#tipiziranje)
-    - [Object](#object)
-    - [Array](#array)
+  * [E2E](#e2e)
+    - [Uvod](#uvod)
+    - [Autentifikacija](#autentifikacija)
+    - [Smjernice](#smjernice)
+    - [Environment](#environment)
+    - [Pokretanje testova](#pokretanje-testova)
+  * [Component](#component)
+    - [Uvod](#uvod)
 
 ## Uvod
 
