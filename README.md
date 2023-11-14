@@ -17,8 +17,11 @@ U ovom dokumentu opisati će se neke smjernice toga kako testirati aplikaciju na
     - [Environment](#environment)
     - [Pokretanje testova](#pokretanje-testova)
   * [Component](#component)
-    - [Primjer](#primjer)
-  * [Unit](#unit)
+    - [Primjer component testova](#primjer-component-testova)
+    - [Pokretanje component testova](#pokretanje-component-testova)
+- [Unit](#unit)
+  - [Primjer unit testova](#primjer-unit-testova)
+  - [Pokretanje unit testova](#pokretanje-unit-testova)
 
 ## Uvod
 
@@ -214,7 +217,7 @@ Ni pod razno se nebi trebalo dirati interno stanje komponente ili njegove metode
 
 Svaki test bi se trebao pisati unutar direktorija gdje se nalazi sama komponenta, npr. ako postoji komponenta `slider.vue` trebala bi postojati i datoteka `slider.cy.ts` na istoj razini ili unutar posebnog foldera zvanog `tests`.
 
-#### Primjer
+#### Primjer component testova
 
 ```ts
 import { hexToRgb } from "@/shared/helpers/misc";
@@ -315,3 +318,54 @@ Opisano po točkama:
 5. Iako je spomenuto da nebi trebali dirati interno stanje komponente, u nekim testovima je potrebno samo promijeniti vrijednost na nešto drugo kako bi se moglo vidjeti kako će komponenta reagirati i hoće li biti reaktivna
 6. Isto kao i prošla točka, ali se mijenja drugi prop i gleda reaktivnost u ovisnosti na to - sve promjene internog stanja rade se pomoću custom naredbe `cy.vue()`
 7. Jednostavno testiranje klikanjem po komponenti
+
+#### Pokretanje component testova
+
+Testovi za komponente mogu se pokrenuti ili preko interaktivnog sučelja od E2E testova ili preko komandne linije:
+
+```json
+{
+  "test:component": "cypress run --component"
+}
+```
+
+## Unit
+
+Najjednostavnije od svih oblika testiranja, unit testiranje se bavi izoliranim funkcijama, klasama i modulima koji bi u pravilu trebali funkcionirati Single Responsibility principom (SRP) tj. trebali bi obavljati ono što trebaju obavljati i ništa više od tog.
+
+U tu svrhu koristi se Vitest jer je jednostavan, brz i pravio ga je isti tim kao i Vue tim.
+
+Unit testovi bi trebali biti kategorizirani ovisno o svojoj svrsi npr. ako testiramo neke funkcije koje se koriste za pripomoć u radu aplikacije zvane `helpers.ts` onda bi stvorili folder na istoj razini zvan `tests` s datotekom za testiranje `helpers.test.ts`.
+
+### Primjer unit testova
+
+U ovom primjeru se testira hoće li se tekst pravilno formatirati tj. hoće li dobiti veliko prvo slovo hoće li se pravilno stvoriti akronim:
+
+```ts
+import { describe, expect, test } from "vitest";
+
+import { acronym, capitalize } from "../string";
+
+describe("string tests", () => {
+  test("should produce an acronym", () => {
+    expect(acronym("Ministarstvo Unutarnjih Poslova")).toBe("MUP");
+  });
+
+  test("text should be capitalized", () => {
+    expect(capitalize("branko")).toBe("Branko");
+  });
+});
+```
+
+Kao i prije testovi su grupirani `describe` funkcijom pa zatim je svaki test funkcije odvojen u svoj `test` blok istoimenom funkcijom pa zatim se koristi `expect` funkcija od Vitesta.
+
+### Pokretanje unit testova
+
+Ovi testovi mogu se pokrenuti ili preko interaktivnog sučelja ili preko komandne linije:
+
+```json
+{
+  "test:unit": "vitest run",
+  "test:unit:ui": "vitest --ui"
+}
+```
