@@ -17,7 +17,8 @@ U ovom dokumentu opisati će se neke smjernice toga kako testirati aplikaciju na
     - [Environment](#environment)
     - [Pokretanje testova](#pokretanje-testova)
   * [Component](#component)
-    - [Uvod](#uvod)
+    - [Primjer](#primjer)
+  * [Unit](#unit)
 
 ## Uvod
 
@@ -311,6 +312,6 @@ Opisano po točkama:
 2. Svaki test kao i kod E2E treba opisati, generalno kod testiranja komponenti je to sami naziv komponente
 3. Inicijalni test koji bi trebalo provesti je: Hoće li se komponenta uopće renderati? Ovo radimo `mount` funkcijom pa zatim dodatno definiramo neke podatke koji su specifični toj komponenti
 4. Jedan od testova bi trebao sadržavati vizualni opis stanja komponente kad se rendera, generalno samo provjere usklađuje li se stil i izgled onome kako bi trebalo biti
-5. WIP
-6. WIP
-7. WIP
+5. Iako je spomenuto da nebi trebali dirati interno stanje komponente, u nekim testovima je potrebno samo promijeniti vrijednost na nešto drugo kako bi se moglo vidjeti kako će komponenta reagirati i hoće li biti reaktivna
+6. Isto kao i prošla točka, ali se mijenja drugi prop i gleda reaktivnost u ovisnosti na to - sve promjene internog stanja rade se pomoću custom naredbe `cy.vue()`
+7. Jednostavno testiranje klikanjem po komponenti
